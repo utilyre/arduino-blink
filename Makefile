@@ -4,6 +4,8 @@ CC = avr-gcc
 OBJCOPY = avr-objcopy
 CFLAGS += -std=gnu99 -Wall -Wextra
 CFLAGS += -Os -ffunction-sections -fdata-sections
+LDFLAGS += -L.
+LDLIBS = -lm
 MMCU ?= atmega328p
 FREQ ?= 8000000
 
@@ -27,8 +29,8 @@ clean:
 	rm -f $(TARGET) $(TARGET).* $(OBJECTS)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) -mmcu=$(MMCU) -o $@ $^
+	$(CC) $(CFLAGS) $(LDFLAGS) -mmcu=$(MMCU) -o $@ $^ $(LDLIBS)
 	$(OBJCOPY) -O ihex -R .eeprom $@ $@.ihex
 
-%.o: %.c
-	$(CC) $(CFLAGS) -mmcu=$(MMCU) -DF_CPU=$(FREQ) -c -o main.o main.c
+%.o: %.c $(wildcard *.h)
+	$(CC) $(CFLAGS) -mmcu=$(MMCU) -DF_CPU=$(FREQ) -c -o $@ $<
