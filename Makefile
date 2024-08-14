@@ -1,4 +1,4 @@
-.PHONY: all install clean
+.PHONY: all preinstall install clean
 
 CC = avr-gcc
 OBJCOPY = avr-objcopy
@@ -12,6 +12,13 @@ SOURCES = $(wildcard *.c)
 OBJECTS = $(patsubst %.c,%.o,$(SOURCES))
 
 all: $(TARGET)
+
+preinstall:
+ifneq ($(wildcard /etc/lsp-release),)
+	apt install avr-libc avrdude binutils-avr gcc-avr
+else ifneq ($(wildcard /etc/fedora-release),)
+	dnf install avr-libc avrdude avr-binutils avr-gcc
+endif
 
 install:
 	avrdude -F -c arduino -p $(MMCU) -P /dev/ttyACM* -U flash:w:$(TARGET).ihex
